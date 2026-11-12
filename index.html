@@ -1,0 +1,242 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pixel Color Kids - Professor</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;color:#24202d;background:#8d62cc}
+button,select,input{font-family:inherit}
+button{cursor:pointer}
+button:disabled{opacity:.5;cursor:default}
+#home{height:100vh;display:flex;flex-direction:column;padding:12px 2% 9px;background:#895fd0;color:#fff}
+h1{margin:6px 0 8px;text-align:center;font-size:clamp(23px,4vw,46px);text-shadow:2px 3px #6b40a8}
+#nav{display:flex;align-items:center;justify-content:space-between;gap:15px;max-width:1100px;width:100%;margin:0 auto 5px}
+#nav button,.action{border:3px solid #fff;border-radius:12px;padding:10px 15px;background:#21bfe5;color:white;font-weight:bold;box-shadow:0 3px #0b88ad}
+#cards{flex:1;overflow-y:auto;display:flex;justify-content:center;align-content:start;flex-wrap:wrap;gap:15px;max-width:1250px;width:100%;margin:auto;padding:8px}
+.card{width:170px;max-width:calc(50% - 12px);background:transparent;color:#fff;border:0;text-align:center;font-weight:bold}
+.card canvas{width:100%;aspect-ratio:1;image-rendering:pixelated;border:3px solid #fff;background:white}
+.card small{display:block;font-size:11px;font-weight:normal;line-height:1.2;margin:3px 0 7px}
+.card.done canvas{filter:brightness(.6)}
+#footer{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:9px;padding:8px 0 0;border-top:1px solid #ffffff44}
+#footer button{padding:10px 14px;border:2px solid white;border-radius:10px;background:#e9498a;color:white;font-weight:bold}
+#footer button:first-child{background:#1baac9}
+.credit{font-size:12px;color:#fff;text-align:center;margin-top:6px}
+#game{display:none;min-height:100vh;background:#f8b9d6;padding:12px}
+#gameBox{display:flex;align-items:center;justify-content:space-around;gap:18px;max-width:1500px;margin:auto;min-height:calc(100vh - 35px)}
+#left{width:19%;min-width:140px;background:#f4e7aa;border:6px solid #d4b852;border-radius:18px;padding:12px;text-align:center;align-self:center;max-height:94vh;overflow:auto}
+#left button.back{padding:10px 14px;border:3px solid white;border-radius:10px;background:#0cbddb;color:#fff;font-size:20px}
+#palette{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+#palette button{min-height:42px;border:3px solid #fff;border-radius:6px;font-weight:bold;color:#222}
+#palette button.on{outline:4px solid #007ab4}
+#palette span{background:#fffffff0;border:1px solid #333;border-radius:10px;padding:3px 7px;display:inline-block}
+#center{text-align:center;min-width:0;flex:1}
+#target{margin:0 auto 8px;padding:10px;background:#fff4a8;border:3px solid #d19c3c;border-radius:12px;display:none;font-weight:bold;max-width:570px}
+#target strong{font-size:23px}
+#target .swatch{display:inline-block;width:23px;height:23px;border:2px solid #444;vertical-align:middle;margin:0 6px}
+#frame{background:#fff;display:inline-block;padding:14px;border-radius:18px;max-width:100%}
+#board{border-collapse:collapse;margin:auto;table-layout:fixed}
+#board td{border:2px solid #333;background:#fff;text-align:center;vertical-align:middle;padding:0;cursor:pointer;font-weight:bold;overflow:hidden;white-space:nowrap}
+#board td.axis{background:transparent;border:0;cursor:default;font-weight:bold;color:#6c437d}
+#board td.filled{cursor:default}
+#board .dot{display:block;width:12px;height:12px;border-radius:3px;border:1px solid #777;margin:auto}
+#right{width:24%;text-align:center}
+#right h2{font-size:clamp(22px,3vw,42px);color:#e91579;margin:0}
+#right h3{margin:0 0 18px;color:#2cb960}
+#preview{width:min(100%,270px);background:#fff;border:7px solid white;image-rendering:pixelated;box-shadow:0 0 0 1px #888}
+#status{font-weight:bold;color:#963a70;margin:14px 0}
+#help{font-size:13px;font-weight:bold;color:#7b4373}
+#teacher{display:none;background:#f7f1ff;min-height:100vh;padding:18px;overflow:auto}
+#teacherHeader{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;max-width:1200px;margin:auto}
+#teacherHeader h2{margin:0;color:#6d3cae}
+section.panel{background:white;max-width:1200px;margin:14px auto;padding:17px;border:2px solid #d9c9f4;border-radius:15px;box-shadow:0 3px 6px #0001}
+section.panel h3{color:#6d3cae;margin:3px 0 12px}
+.editLayout{display:flex;gap:25px;flex-wrap:wrap}
+.editSide{width:340px;max-width:100%}
+.editMain{flex:1;min-width:260px;text-align:center}
+label{font-size:13px;font-weight:bold;display:block;margin:12px 0 5px}
+input[type=text],input[type=password],select{width:100%;border:2px solid #c7bae1;border-radius:8px;padding:9px;font-size:15px;background:#fff}
+.teacherBtns{display:flex;flex-wrap:wrap;gap:9px;margin:13px 0}
+.teacherBtns button,button.tbtn{background:#23b5d5;color:white;border:2px solid #fff;border-radius:10px;padding:10px 13px;font-weight:bold;box-shadow:0 2px #118da7}
+.teacherBtns button.warn{background:#e94f7c}
+.teacherBtns button.alt,button.tbtn.alt{background:#8261c9}
+#editColors{display:flex;flex-wrap:wrap;gap:5px}
+#editColors button{width:34px;height:34px;border:2px solid #777;border-radius:5px}
+#editColors button.on{outline:3px solid #12a3d0}
+#editTable{border-collapse:collapse;margin:15px auto}
+#editTable td{width:31px;height:31px;padding:0;border:1px solid #444}
+#editTable button{display:block;width:31px;height:31px;padding:0;border:0}
+#mini{width:120px;height:120px;image-rendering:pixelated;border:3px solid #bbb}
+#settings{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.tableOptions{display:none;background:#f4f0ff;border:1px solid #cdbde8;border-radius:10px;padding:9px;margin:12px 0}
+.tableOptions label{display:inline-flex;align-items:center;gap:5px;margin:6px 9px;font-size:13px}
+.teacherItem{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:9px 0;border-bottom:1px solid #eee}
+.teacherItem strong{min-width:175px}
+.teacherItem select{max-width:240px}
+.teacherItem button{background:#eee6ff;border:1px solid #c0addd;border-radius:7px;padding:7px}
+.teacherItem button.danger{background:#ffe0e8}
+#fileIn{display:none}
+.overlay{display:none;position:fixed;inset:0;background:#241830a6;z-index:20;align-items:center;justify-content:center;padding:15px}
+.dialog{background:#fff5b3;border:6px solid #fff;border-radius:20px;padding:20px;width:min(96vw,430px);max-height:90vh;overflow:auto;text-align:center;box-shadow:0 7px 24px #0005}
+.dialog h2{color:#dc2872;margin:0 0 9px}
+.dialog input{max-width:260px}
+.dialog .teacherBtns{justify-content:center}
+.dialog .tableOptions{display:block;text-align:left}
+.message{font-size:13px;color:#b02243;font-weight:bold;min-height:17px}
+@media(max-width:830px){
+#gameBox{display:flex;flex-wrap:wrap;align-items:flex-start;gap:12px}
+#left{width:100%;min-height:0;max-height:none;padding:8px}
+#palette{flex-direction:row;flex-wrap:wrap;justify-content:center;gap:6px}
+#palette button{min-width:65px;padding:5px}
+#center{order:1;width:100%;flex:auto}
+#right{order:2;width:100%;display:flex;flex-direction:column;align-items:center}
+#preview{width:170px}
+#frame{padding:5px}
+#game{overflow:auto}
+#left p{display:none}
+}
+@media(max-width:570px){
+#home{padding:8px 1%}
+#nav button{padding:5px;font-size:15px}
+.card{width:130px}
+#cards{gap:7px}
+#footer button{font-size:11px;padding:7px}
+#editTable td,#editTable button{width:26px;height:26px}
+#teacher{padding:8px}
+section.panel{padding:10px}
+#board td{border-width:1px}
+}
+</style>
+</head>
+<body>
+<div id="home">
+  <h1>ESCOLHA UMA ARTE EM PIXELS</h1>
+  <div id="nav"><button onclick="page(-1)">◀ Anterior</button><strong id="pageInfo"></strong><button onclick="page(1)">Próxima ▶</button></div>
+  <div id="cards"></div>
+  <div id="footer"><button onclick="askPassword()">🔒 ÁREA DO PROFESSOR</button><button onclick="resetProgress()">REINICIAR PROGRESSO</button></div>
+  <div class="credit">Criado pelo Professor Marco Aurélio</div>
+</div>
+<div id="game">
+  <div id="gameBox">
+    <div id="left"><button class="back" onclick="goHome()">☷ MENU</button><div id="palette"></div><p style="font-size:12px;color:#826b16">Escolha uma cor e pinte. Progresso salvo neste navegador.</p></div>
+    <div id="center"><div id="target"></div><div id="frame"><table id="board"></table></div></div>
+    <div id="right"><h2>PIXEL</h2><h3>COLOR KIDS</h3><canvas id="preview" width="250" height="250"></canvas><div id="status"></div><div id="help"></div></div>
+  </div>
+  <div class="credit">Criado pelo Professor Marco Aurélio</div>
+</div>
+<div id="teacher">
+  <div id="teacherHeader"><div><h2>ÁREA DO PROFESSOR</h2>Crie e configure atividades de colorir 10×10.</div><button class="tbtn alt" onclick="leaveTeacher()">◀ VOLTAR AOS DESENHOS</button></div>
+  <section class="panel"><h3 id="editHeading">Criar desenho</h3>
+    <div class="editLayout"><div class="editSide">
+      <label>Nome do desenho</label><input id="artName" type="text" maxlength="36" placeholder="Ex.: Borboleta">
+      <label>Modo de pintura</label><select id="artMode" onchange="toggleTables()"></select>
+      <div class="tableOptions" id="editTables"><strong>Quais tabuadas?</strong><div id="editChecks"></div></div>
+      <label>Escolha a cor para pintar</label><div id="editColors"></div>
+      <div class="teacherBtns"><button onclick="saveArt()">SALVAR DESENHO</button><button class="alt" onclick="newArt()">NOVO</button><button class="warn" onclick="clearArt()">LIMPAR GRADE</button></div>
+      <div class="message" id="editMsg"></div>
+    </div><div class="editMain"><strong>GRADE 10 × 10</strong><table id="editTable"></table><div>Use o branco para apagar pixels.</div><br><canvas id="mini" width="120" height="120"></canvas></div></div>
+  </section>
+  <section class="panel"><h3>Configurar desenhos existentes</h3>
+    <div id="settings"><strong>Aplicar modo a todos:</strong><select id="allMode" style="max-width:260px" onchange="toggleTables()"></select><button class="tbtn" onclick="applyAll()">ALTERAR TODOS</button></div>
+    <div class="tableOptions" id="allTables"><strong>Selecione as tabuadas</strong><div id="allChecks"></div></div>
+    <div id="teacherList"></div>
+  </section>
+  <section class="panel"><h3>Salvar e levar para outros computadores</h3>
+    <div class="teacherBtns"><button onclick="exportHTML()">BAIXAR HTML COM MEUS DESENHOS</button><button class="alt" onclick="exportJSON()">BACKUP JSON</button><button class="alt" onclick="document.getElementById('fileIn').click()">IMPORTAR JSON</button></div>
+    <input id="fileIn" type="file" accept=".json,application/json" onchange="importJSON(this)">
+    <small>Os desenhos ficam no navegador. Para usar em outro computador, exporte o HTML atualizado.</small>
+  </section>
+</div>
+<div class="overlay" id="passwordOverlay"><div class="dialog"><h2>Acesso do professor</h2><p>Digite a senha:</p><input id="password" type="password" inputmode="numeric" onkeydown="if(event.key==='Enter')enterTeacher()"><div class="message" id="passMsg"></div><div class="teacherBtns"><button onclick="enterTeacher()">ENTRAR</button><button class="alt" onclick="hideOverlay('passwordOverlay')">CANCELAR</button></div></div></div>
+<div class="overlay" id="tablesOverlay"><div class="dialog"><h2>Escolher tabuadas</h2><p id="tablesName"></p><div class="tableOptions"><div id="artChecks"></div></div><div class="message" id="tablesMsg"></div><div class="teacherBtns"><button onclick="saveArtTables()">SALVAR</button><button class="alt" onclick="hideOverlay('tablesOverlay')">CANCELAR</button></div></div></div>
+<div class="overlay" id="doneOverlay"><div class="dialog"><h2>PARABÉNS!</h2><p>Você completou o desenho!</p><button class="tbtn" onclick="goHome()">ESCOLHER OUTRO</button></div></div>
+<script type="application/json" id="seed">{"custom":[],"config":{},"counter":1,"space":"principal"}</script>
+<script>
+(function(){
+'use strict';
+var PASSWORD='060120';
+var COLORS={".":"#ffffff","D":"#008a16","G":"#4cb829","Y":"#ffea00","E":"#f2eea2","O":"#ee751b","R":"#f23829","M":"#e61572","L":"#f5b0e2","P":"#f667f9","V":"#9161cc","U":"#0038b8","B":"#548fcb","C":"#08b8e3","N":"#9b501a","S":"#c6c9cc","A":"#7b8489","K":"#1a2226","Q":"#eeff01","T":"#b48976","F":"#f9cac2","J":"#fd3da4"};
+var NAMES='Hulk|Homem-Aranha|Batman|Superman|Ariel|Cinderela|Ovelha|Creeper|Rapunzel|Branca de Neve|Moana (Vaiana)|Mulan|Pikachu|Bulbasaur|Capitão América|Homem de Ferro|Steve|Espada|Papai Noel|Kevin (Minions)|Stuart (Minions)'.split('|');
+var DESIGNS='..KKKKKK../..KKDDDK../..KDKGKD../..KGG..G../..DGGGGG../.GDGGGGGD./GGDDDGGDGG/DD.UUUU.DD/..UUUUUU../..GD..DG..;...RRRR.../..RRRRRR../..RS.R.S../..NR.RRR../...NRRR.../.URRKRKRU./RUUURKUUUR/NN.URRU.NN/..UUUUUU../..RN..NR..;..K....K../..KKKKKK../..KK.K.K../..KKKKKK../..KKEEKK../.KSSSSSSK./KSKSYYKSKS/KKASSSSAKK/.ASYYYYSA./AAKKAAKK..;...KKKKK../..KEKKKK../..KEEKEK../..CEKEKE../...EEEEE../.CCCCYYCC./EEUCYYCUEE/EEMUCCUMEE/.MCCRRCCM./MMRRMMRRMM;...RRRR.../..REEEER../..EKEEKE../..REEEER../..RREERR../..EVVVVE../.EREEEERE./G..DDDD.../GDDDDDD.../G.DDDD....;...YYYY.../..YEYYEY../..EKEEKE../..YEEEEY../...YEEY.../..ECCCCE../.C.UUUU.C./..SCSCSC../..CCCCCC../..CCCCCC..;.DDDD...../DGGGGD..../.KNK.D..../DNNNNDGGGD/DGLNGDGDGD/DDDDDDGDDG/..GGGGDGGD/..DGDGGGDG/..GDG..GGD/...KN...KN;.DDDDDDDD./.DKKGGKKD./.DKKGGKKD./.DGGKKGGD./.DDKKKKDD./..DDDDDD../..DGGGGD../.DGGDDGGD./.DDDGGDDD./.DGG..GGD.;...YYYY.../..YEEEEY../..EKEEKE../..YEEEEY../..YYEEYY../..MVVVVM../.EYVLLVYE./..YVVVVY../.YYMMMMYY./.YYMMMMYY.;...KKKK.../..KEEEEK../.KEKEEKEK./.KKEEEEKK./...SEES.../..CRUURC../.E.UUUU.E./...YYYY.../...YYYY.../...YYYY...;...KKKK.../..KNNNNK../..NKNNKN../..KNNNNK../..KKNNKK../..NRRCRN../.N.NNNN.N./...ERRE.../...EYYE.../...N..N...;...KKKK.../..KEEEEK../..EKEEKE../..KEEEEK../..KKEEKK../..GDQQDG../.E.GDDG.E./...UUUU.../...QQQQ.../...QQQQ...;KK......KK/KY......YK/YY......YY/YYYYYYYYYY/.YK.YY.KY./.YKKYYKKY./QYYYYYYYYQ/QRRYKKYRRQ/QRRYLLYRRQ/.QYYYYYYQ.;G........G/DG......GD/DGGGGGGGGD/GG.RDDR.GG/G.RRGDRR.G/G.RRDGRR.G/GGGGGGGGGG/GK.LLLL.KG/DGKLLLLKGD/.DGGGGGGD.;..S....S../..SCCCCS../..CCKCKC../..UUEEEC../.RRREEEC../R.C.RUCCC./RC.CRUCCUC/R.C.R.R.MM/.RRRUCCC../..MM..MM..;...RRRR.../..RRQQQR../..RY.Y.R../..RYYYQR../..RYYYQR../.QYRRRRYQ./ORROR.ORRO/OO.YRRY.OO/..QEEEEQ../..RR..RR..;....NNNN../SSS.KEKN../AAASEEEE../AAACCCCCCC/..NCCCCCCC/.ENECCCCEE/.EN.CCCCEE/....UUUU../....UUUU../....AAAA..;..Y.....KK/.YYY...KCK/..Y...KCK./.....KCK../.KK.KCK.../.KUKCK..../..KUK...Y./..NKUK.YYY/KN..KK..Y./UK........;TTTRRRRTTT/.TRRRRRRTT/TRR....RTT/TT.FFFF.TT/T.FKFFKF.T/T.FFMMFF.T/T.F....F.T/T...JJ...T/TT......TT/..........;...KKYKK../..K.NK.N../..YKKYKK../..YYYYY.../..YYYYY.../K.UYYYU.K./.YYUYUYY../..UNUNU.../..UUUUU.../...K.K....;........../...YKKY.../..YK..KY../..YK.NKY../..YYKKYY../..UYYYYU../.YYUYYUYY./K.UNUUNU.K/..UUUUUU../...K..K...'.split(';').map(function(s){return s.split('/');});
+var MODES={ano1:'Somas - 1º ano',ano2:'Somas - 2º ano',numeros:'Números',letras:'Letras',coresGuia:'Cores com pistas',coresLivres:'Cores sem pistas',tabuada:'Tabuadas',coordenadas:'Coordenadas'};
+var COLOR_NAMES={'.':'Branco',D:'Verde escuro',G:'Verde claro',Y:'Amarelo',E:'Creme',O:'Laranja',R:'Vermelho',M:'Rosa escuro',L:'Rosa claro',P:'Rosa-lilás',V:'Roxo',U:'Azul escuro',B:'Azul claro',C:'Ciano',N:'Marrom',S:'Cinza claro',A:'Cinza escuro',K:'Preto',Q:'Amarelo-limão',T:'Marrom claro',F:'Pêssego',J:'Rosa vivo'};
+var CODES=Object.keys(COLORS),DEFAULT_TABLES=[2,3,4,5],STORE='pixelcolor-professor-texto-v1-';
+var seed={};try{seed=JSON.parse(document.getElementById('seed').textContent);}catch(e){}
+var space=seed.space||'principal',teacher=readTeacher(),progress=readProgress();
+var art=null,selected=null,mapping={},targetOrder=[],targetIndex=0,order=[],pageno=0;
+var editing=null,pixels=[],brush='K',dirty=false,tableID=null,unlocked=false;
+function el(id){return document.getElementById(id);}
+function safeRead(key){try{return JSON.parse(localStorage.getItem(key));}catch(e){return null;}}
+function safeSave(key,data){try{localStorage.setItem(key,JSON.stringify(data));}catch(e){}}
+function readTeacher(){var t=safeRead(STORE+space+'-teacher')||seed;return {custom:t.custom||[],config:t.config||{},counter:t.counter||1};}
+function readProgress(){return safeRead(STORE+space+'-aluno')||{};}
+function saveTeacher(){safeSave(STORE+space+'-teacher',teacher);}
+function saveProgress(){safeSave(STORE+space+'-aluno',progress);}
+function copy(v){return JSON.parse(JSON.stringify(v));}
+function tablesClean(v){var out=[],i,n;if(!v||!v.length)return DEFAULT_TABLES.slice();for(i=0;i<v.length;i++){n=+v[i];if(n>=1&&n<=10&&n===Math.floor(n)&&out.indexOf(n)<0)out.push(n);}return out.sort(function(a,b){return a-b;});}
+function isMode(m){return Object.prototype.hasOwnProperty.call(MODES,m);}
+function allArts(){var a=[],i,id,x,c;for(i=0;i<NAMES.length;i++){id='b'+i;c=teacher.config[id]||{};a.push({id:id,name:NAMES[i],rows:DESIGNS[i],mode:c.mode||'ano1',tables:tablesClean(c.tables),builtin:true});}for(i=0;i<teacher.custom.length;i++){x=teacher.custom[i];a.push({id:x.id,name:x.name,rows:x.rows,mode:x.mode||'ano1',tables:tablesClean(x.tables),builtin:false});}return a;}
+function findArt(id){var a=allArts(),i;for(i=0;i<a.length;i++)if(a[i].id===id)return a[i];return null;}
+function shuffle(a){var i,j,t;for(i=a.length-1;i>0;i--){j=Math.floor(Math.random()*(i+1));t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function chooseOrder(){order=shuffle(allArts().map(function(a){return a.id;}));pageno=0;}
+function draw(canvas,rows){var c=canvas.getContext('2d'),w=canvas.width/10,h=canvas.height/10,r,k,ch;c.clearRect(0,0,canvas.width,canvas.height);for(r=0;r<10;r++)for(k=0;k<10;k++){ch=rows[r].charAt(k);c.fillStyle=COLORS[ch]||'#fff';c.fillRect(k*w,r*h,w+.15,h+.15);c.strokeStyle='#4447';c.lineWidth=.7;c.strokeRect(k*w+.5,r*h+.5,w,h);}}
+function unique(rows){var found={},a=[],i,r,c;for(r=0;r<10;r++)for(c=0;c<10;c++)found[rows[r].charAt(c)]=true;for(i=0;i<CODES.length;i++)if(found[CODES[i]])a.push(CODES[i]);return a;}
+function products(t){var o=[],i,m,v;for(i=0;i<t.length;i++)for(m=1;m<=10;m++){v=t[i]*m;if(o.indexOf(v)<0)o.push(v);}return o.sort(function(a,b){return a-b;});}
+function isValidForMode(rows,mode,t){return mode!=='tabuada'||unique(rows).length<=products(t).length;}
+function page(n){var pages=Math.ceil(order.length/10);pageno=Math.max(0,Math.min(pages-1,pageno+n));renderHome();}
+function renderHome(){var root=el('cards'),i,a,b,cv,mode;root.innerHTML='';for(i=pageno*10;i<Math.min(order.length,(pageno+1)*10);i++){a=findArt(order[i]);if(!a)continue;b=document.createElement('button');b.className='card'+(progress[a.id]&&progress[a.id].length===100?' done':'');b.setAttribute('data-id',a.id);cv=document.createElement('canvas');cv.width=180;cv.height=180;b.appendChild(cv);var label=document.createElement('div');label.textContent=a.name;b.appendChild(label);mode=document.createElement('small');mode.textContent=MODES[a.mode];b.appendChild(mode);b.onclick=function(){openArt(this.getAttribute('data-id'));};root.appendChild(b);draw(cv,a.rows);}el('pageInfo').textContent='Página '+(pageno+1)+' de '+Math.ceil(order.length/10);}
+function show(id){el('home').style.display=id==='home'?'flex':'none';el('game').style.display=id==='game'?'block':'none';el('teacher').style.display=id==='teacher'?'block':'none';}
+function goHome(){hideOverlay('doneOverlay');art=null;show('home');renderHome();}
+function resetProgress(){if(confirm('Apagar o progresso dos alunos? Os desenhos do professor serão mantidos.')){progress={};saveProgress();renderHome();}}
+function hash(s){var h=0,i;for(i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0;return h;}
+function buildMap(a){var codes=unique(a.rows),pool=[],m={},i,k,free=[];if(a.mode==='ano1')pool=[2,3,4,5,6,7,9,10,8,1,0];else if(a.mode==='ano2')pool=[10,11,12,13,14,16,17,18,19,20,15,9,8,7,6,5,4,3,2,1,0];else if(a.mode==='numeros')for(i=1;i<=22;i++)pool.push(i);else if(a.mode==='letras')for(i=0;i<22;i++)pool.push(String.fromCharCode(65+i));else if(a.mode==='tabuada')pool=products(a.tables);else{for(i=0;i<codes.length;i++)m[codes[i]]=COLOR_NAMES[codes[i]];return m;}
+if(a.mode==='ano1'||a.mode==='ano2'){k=a.mode==='ano1'?8:15;if(codes.indexOf('.')>=0){m['.']=k;pool=pool.filter(function(x){return x!==k;});}}
+for(i=0;i<codes.length;i++){if(!(codes[i] in m)){free.push(codes[i]);}}for(i=0;i<free.length;i++)m[free[i]]=pool[i];return m;}
+function equation(result,pos){var options=[],a,b,max=art.mode==='ano1'?10:20;for(a=0;a<=result;a++){b=result-a;if(a<=max&&b<=max)options.push(a+' + '+b);}return options[hash(art.id+pos+result)%options.length];}
+function multiply(result,pos){var options=[],i,n;for(i=0;i<art.tables.length;i++){n=result/art.tables[i];if(n>=1&&n<=10&&Math.floor(n)===n)options.push(art.tables[i]+' × '+n);}return options[hash(art.id+pos+result)%options.length]||'';}
+function labelFor(code,pos){var x=mapping[code];if(art.mode==='ano1'||art.mode==='ano2')return equation(x,pos);if(art.mode==='tabuada')return multiply(x,pos);return String(x);}
+function paintCount(){return (progress[art.id]||'').length;}
+function posName(pos){return String.fromCharCode(65+pos%10)+(Math.floor(pos/10)+1);}
+function nextCoordinate(){while(targetIndex<targetOrder.length&&(progress[art.id]||[]).indexOf(targetOrder[targetIndex])>=0)targetIndex++;if(targetIndex>=targetOrder.length){el('target').style.display='none';return;}var p=targetOrder[targetIndex],code=art.rows[Math.floor(p/10)].charAt(p%10);el('target').style.display='block';el('target').innerHTML='LOCALIZE A COORDENADA E PINTE COM A COR INDICADA<br><strong>'+posName(p)+'</strong> <span class="swatch" style="background:'+COLORS[code]+'"></span> '+COLOR_NAMES[code];}
+function openArt(id){art=findArt(id);if(!art)return;show('game');selected=null;mapping=buildMap(art);if(!progress[id])progress[id]=[];targetOrder=shuffle((function(){var a=[],i;for(i=0;i<100;i++)a.push(i);return a;})());targetIndex=0;el('target').style.display='none';renderPalette();renderBoard();draw(el('preview'),art.rows);if(art.mode==='coordenadas')nextCoordinate();updateStatus();}
+function renderPalette(){var root=el('palette'),codes=unique(art.rows),i,b,s,code;root.innerHTML='';for(i=0;i<codes.length;i++){code=codes[i];b=document.createElement('button');b.style.background=COLORS[code];b.setAttribute('data-code',code);s=document.createElement('span');s.textContent=(art.mode==='coresGuia'||art.mode==='coresLivres'||art.mode==='coordenadas')?COLOR_NAMES[code]:mapping[code];b.appendChild(s);b.onclick=function(){selected=this.getAttribute('data-code');var bs=root.getElementsByTagName('button'),j;for(j=0;j<bs.length;j++)bs[j].className='';this.className='on';};root.appendChild(b);}if(root.firstChild)root.firstChild.click();}
+function renderBoard(){var board=el('board'),r,c,tr,td,code,p,hint,cell,axis=art.mode==='coordenadas',size;if(window.innerWidth<550)size=Math.max(25,Math.floor((window.innerWidth-52)/(axis?11:10)));else if(window.innerWidth<830)size=Math.min(43,Math.floor((window.innerWidth-70)/(axis?11:10)));else size=Math.max(27,Math.min(54,Math.floor((window.innerWidth*.57-35)/(axis?11:10)),Math.floor((window.innerHeight-85)/(axis?11:10))));board.innerHTML='';board.style.width=(size*(axis?11:10))+'px';if(axis){tr=document.createElement('tr');for(c=0;c<=10;c++){td=document.createElement('td');td.className='axis';td.textContent=c===0?'':String.fromCharCode(64+c);td.style.width=size+'px';td.style.height=Math.floor(size*.6)+'px';tr.appendChild(td);}board.appendChild(tr);}for(r=0;r<10;r++){tr=document.createElement('tr');if(axis){td=document.createElement('td');td.className='axis';td.textContent=r+1;td.style.width=size+'px';td.style.height=size+'px';tr.appendChild(td);}for(c=0;c<10;c++){p=r*10+c;code=art.rows[r].charAt(c);td=document.createElement('td');td.style.width=size+'px';td.style.height=size+'px';td.style.fontSize=(art.mode==='ano1'||art.mode==='ano2'||art.mode==='tabuada'?Math.max(9,Math.floor(size*.27)):Math.max(12,Math.floor(size*.44)))+'px';td.setAttribute('data-pos',p);td.setAttribute('data-code',code);if(progress[art.id].indexOf(p)>=0){td.className='filled';td.style.background=COLORS[code];}else if(art.mode==='coresGuia'){hint=document.createElement('span');hint.className='dot';hint.style.background=COLORS[code];td.appendChild(hint);}else if(art.mode==='coresLivres'||axis){}else{td.textContent=labelFor(code,p);}td.onclick=function(){paint(this);};tr.appendChild(td);}board.appendChild(tr);}}
+function paint(cell){var p=+cell.getAttribute('data-pos'),code=cell.getAttribute('data-code');if(progress[art.id].indexOf(p)>=0)return;if(art.mode==='coordenadas'&&p!==targetOrder[targetIndex]){wrong(cell);return;}if(selected!==code){wrong(cell);return;}cell.innerHTML='';cell.style.background=COLORS[code];cell.className='filled';progress[art.id].push(p);saveProgress();updateStatus();if(paintCount()===100){el('doneOverlay').style.display='flex';return;}if(art.mode==='coordenadas'){targetIndex++;nextCoordinate();}}
+function wrong(cell){var old=cell.style.borderColor;cell.style.borderColor='#f32735';setTimeout(function(){cell.style.borderColor=old;},300);}
+function updateStatus(){el('status').textContent=art.name+' — '+paintCount()+' de 100 quadrinhos';el('help').textContent=art.mode==='coordenadas'?'Localize a coordenada e escolha a cor indicada.':art.mode==='coresLivres'?'Use a imagem de referência para pintar.':art.mode==='coresGuia'?'Observe a pequena pista de cada quadrinho.':'Resolva e encontre a cor correspondente.';}
+function askPassword(){el('password').value='';el('passMsg').textContent='';el('passwordOverlay').style.display='flex';el('password').focus();}
+function hideOverlay(id){el(id).style.display='none';}
+function enterTeacher(){if(el('password').value!==PASSWORD){el('passMsg').textContent='Senha incorreta.';return;}hideOverlay('passwordOverlay');unlocked=true;show('teacher');renderTeacher();newArt();}
+function leaveTeacher(){unlocked=false;chooseOrder();goHome();}
+function emptyPixels(){var a=[],i;for(i=0;i<10;i++)a.push('..........');return a;}
+function modeSelect(select,value){select.innerHTML='';var key,o;for(key in MODES){o=document.createElement('option');o.value=key;o.textContent=MODES[key];select.appendChild(o);}select.value=value||'ano1';}
+function checkOptions(where,tables){var root=el(where),i,label,cb;root.innerHTML='';for(i=1;i<=10;i++){label=document.createElement('label');cb=document.createElement('input');cb.type='checkbox';cb.value=i;cb.checked=tables.indexOf(i)>=0;label.appendChild(cb);label.appendChild(document.createTextNode(' '+i));root.appendChild(label);}}
+function readChecks(id){var cb=el(id).getElementsByTagName('input'),i,a=[];for(i=0;i<cb.length;i++)if(cb[i].checked)a.push(+cb[i].value);return a;}
+function toggleTables(){el('editTables').style.display=el('artMode').value==='tabuada'?'block':'none';el('allTables').style.display=el('allMode').value==='tabuada'?'block':'none';}
+function renderTeacher(){modeSelect(el('artMode'),'ano1');modeSelect(el('allMode'),'ano1');checkOptions('allChecks',DEFAULT_TABLES);toggleTables();renderTeacherList();}
+function renderTeacherList(){var root=el('teacherList'),arts=allArts(),i,a,div,title,s,b,btn;root.innerHTML='';for(i=0;i<arts.length;i++){a=arts[i];div=document.createElement('div');div.className='teacherItem';title=document.createElement('strong');title.textContent=a.name;div.appendChild(title);s=document.createElement('select');s.setAttribute('data-id',a.id);modeSelect(s,a.mode);s.onchange=function(){var id=this.getAttribute('data-id'),prev=findArt(id).mode;if(!setMode(id,this.value,null)){this.value=prev;}else{renderTeacherList();}};div.appendChild(s);if(a.mode==='tabuada'){btn=document.createElement('button');btn.textContent='Tabuadas: '+a.tables.join(', ');btn.setAttribute('data-id',a.id);btn.onclick=function(){openArtTables(this.getAttribute('data-id'));};div.appendChild(btn);}if(!a.builtin){b=document.createElement('button');b.textContent='EDITAR';b.setAttribute('data-id',a.id);b.onclick=function(){editArt(this.getAttribute('data-id'));};div.appendChild(b);b=document.createElement('button');b.className='danger';b.textContent='EXCLUIR';b.setAttribute('data-id',a.id);b.onclick=function(){deleteArt(this.getAttribute('data-id'));};div.appendChild(b);}root.appendChild(div);}}
+function setMode(id,mode,t){var a=findArt(id),tables=t&&t.length?t:tablesClean(a.tables),i;if(!isValidForMode(a.rows,mode,tables)){alert('As tabuadas selecionadas não oferecem resultados diferentes suficientes para as cores do desenho. Selecione mais tabuadas.');return false;}if(a.builtin){teacher.config[id]={mode:mode,tables:tables};}else{for(i=0;i<teacher.custom.length;i++)if(teacher.custom[i].id===id){teacher.custom[i].mode=mode;teacher.custom[i].tables=tables;}}delete progress[id];saveProgress();saveTeacher();return true;}
+function applyAll(){var mode=el('allMode').value,t=readChecks('allChecks'),arts=allArts(),i,n=0;if(mode==='tabuada'&&!t.length){alert('Escolha pelo menos uma tabuada.');return;}if(!confirm('Alterar o modo de todos os desenhos? O progresso será reiniciado.'))return;for(i=0;i<arts.length;i++)if(setMode(arts[i].id,mode,mode==='tabuada'?t:null))n++;renderTeacherList();alert(n+' desenhos atualizados.');}
+function openArtTables(id){var a=findArt(id);tableID=id;el('tablesName').textContent=a.name;el('tablesMsg').textContent='';checkOptions('artChecks',a.tables);el('tablesOverlay').style.display='flex';}
+function saveArtTables(){var t=readChecks('artChecks');if(!t.length){el('tablesMsg').textContent='Marque uma ou mais tabuadas.';return;}if(setMode(tableID,'tabuada',t)){hideOverlay('tablesOverlay');renderTeacherList();}}
+function drawEdit(){var root=el('editTable'),r,c,tr,td,b,pos;root.innerHTML='';for(r=0;r<10;r++){tr=document.createElement('tr');for(c=0;c<10;c++){pos=r*10+c;td=document.createElement('td');b=document.createElement('button');b.type='button';b.style.background=COLORS[pixels[r].charAt(c)];b.setAttribute('data-pos',pos);b.onmousedown=function(){dirty=true;paintEdit(+this.getAttribute('data-pos'));};b.onmouseover=function(e){if(e.buttons===1)paintEdit(+this.getAttribute('data-pos'));};b.onclick=function(){paintEdit(+this.getAttribute('data-pos'));};td.appendChild(b);tr.appendChild(td);}root.appendChild(tr);}draw(el('mini'),pixels);}
+function paintEdit(pos){var r=Math.floor(pos/10),c=pos%10,s=pixels[r];pixels[r]=s.substring(0,c)+brush+s.substring(c+1);dirty=true;var bs=el('editTable').getElementsByTagName('button');bs[pos].style.background=COLORS[brush];draw(el('mini'),pixels);}
+function editColors(){var root=el('editColors'),i,code,b;root.innerHTML='';for(i=0;i<CODES.length;i++){code=CODES[i];b=document.createElement('button');b.style.background=COLORS[code];b.title=COLOR_NAMES[code];b.className=code===brush?'on':'';b.setAttribute('data-code',code);b.onclick=function(){brush=this.getAttribute('data-code');editColors();};root.appendChild(b);}}
+function newArt(){if(dirty&&!confirm('Descartar as alterações não salvas?'))return;editing=null;pixels=emptyPixels();dirty=false;el('editHeading').textContent='Criar novo desenho';el('artName').value='';el('artMode').value='ano1';el('editMsg').textContent='';checkOptions('editChecks',DEFAULT_TABLES);toggleTables();editColors();drawEdit();}
+function clearArt(){if(confirm('Deixar todos os quadrinhos brancos?')){pixels=emptyPixels();dirty=true;drawEdit();}}
+function editArt(id){var a=findArt(id);if(!a||a.builtin)return;if(dirty&&!confirm('Descartar as alterações não salvas?'))return;editing=id;pixels=a.rows.slice();dirty=false;el('editHeading').textContent='Editar '+a.name;el('artName').value=a.name;el('artMode').value=a.mode;checkOptions('editChecks',a.tables);toggleTables();drawEdit();editColors();el('editMsg').textContent='';el('teacher').scrollTop=0;window.scrollTo(0,0);}
+function saveArt(){var name=el('artName').value.trim().slice(0,36),mode=el('artMode').value,t=readChecks('editChecks'),i;if(!name){el('editMsg').textContent='Digite um nome para o desenho.';return;}if(mode==='tabuada'&&!t.length){el('editMsg').textContent='Escolha pelo menos uma tabuada.';return;}if(!isValidForMode(pixels,mode,mode==='tabuada'?t:DEFAULT_TABLES)){el('editMsg').textContent='Escolha mais tabuadas: há muitas cores para poucos resultados.';return;}if(editing){for(i=0;i<teacher.custom.length;i++)if(teacher.custom[i].id===editing){teacher.custom[i]={id:editing,name:name,rows:pixels.slice(),mode:mode,tables:mode==='tabuada'?t:DEFAULT_TABLES};delete progress[editing];}}else{editing='u'+teacher.counter++;teacher.custom.push({id:editing,name:name,rows:pixels.slice(),mode:mode,tables:mode==='tabuada'?t:DEFAULT_TABLES});}dirty=false;saveProgress();saveTeacher();renderTeacherList();el('editMsg').style.color='#238746';el('editMsg').textContent='Desenho salvo!';}
+function deleteArt(id){if(!confirm('Excluir este desenho?'))return;teacher.custom=teacher.custom.filter(function(a){return a.id!==id;});delete progress[id];saveTeacher();saveProgress();if(editing===id){dirty=false;newArt();}renderTeacherList();}
+function download(txt,name,type){var blob=new Blob([txt],{type:type}),url=(window.URL||window.webkitURL).createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(function(){(window.URL||window.webkitURL).revokeObjectURL(url);},1000);}
+function exportHTML(){var data=copy(teacher),html=document.documentElement.cloneNode(true),tag=html.querySelector('#seed'),ids=['home','game','teacher','passwordOverlay','tablesOverlay','doneOverlay'],i,node;data.space='exportado'+Date.now();tag.textContent=JSON.stringify(data).replace(/</g,'\\u003c');for(i=0;i<ids.length;i++){node=html.querySelector('#'+ids[i]);if(node)node.removeAttribute('style');}download('<!DOCTYPE html>\n'+html.outerHTML,'pixel-color-kids-minhas-atividades.html','text/html;charset=utf-8');}
+function exportJSON(){download(JSON.stringify(teacher,null,2),'pixel-color-kids-backup.json','application/json;charset=utf-8');}
+function importJSON(input){if(!input.files||!input.files[0])return;var rd=new FileReader();rd.onload=function(){try{var t=JSON.parse(rd.result),i,x;if(!t.custom||!t.config||!Array.isArray(t.custom))throw Error('Formato incorreto');if(!confirm('Importar desenhos e configurações? Eles substituirão os atuais.'))return;teacher={custom:[],config:t.config,counter:t.counter||1};for(i=0;i<t.custom.length;i++){x=t.custom[i];if(x&&x.name&&x.rows&&x.rows.length===10&&x.rows.every(function(r){return typeof r==='string'&&r.length===10;}))teacher.custom.push(x);}saveTeacher();renderTeacher();dirty=false;newArt();alert('Backup importado.');}catch(e){alert('Este arquivo não é um backup válido.');}};rd.readAsText(input.files[0]);input.value='';}
+window.page=page;window.goHome=goHome;window.resetProgress=resetProgress;window.askPassword=askPassword;window.enterTeacher=enterTeacher;window.hideOverlay=hideOverlay;window.leaveTeacher=leaveTeacher;window.toggleTables=toggleTables;window.newArt=newArt;window.clearArt=clearArt;window.saveArt=saveArt;window.editArt=editArt;window.deleteArt=deleteArt;window.applyAll=applyAll;window.saveArtTables=saveArtTables;window.exportHTML=exportHTML;window.exportJSON=exportJSON;window.importJSON=importJSON;
+window.addEventListener('resize',function(){if(art)renderBoard();});
+chooseOrder();renderHome();
+})();
+</script>
+</body>
+</html>
